@@ -33,20 +33,20 @@ amp_ratio2 = second.iloc[:,0].values
 peakf2= second.iloc[:,1].values
 depth2 = second.iloc[:,2].values
 
-fig, (ax0, ax1) = plt.subplots(1,2, figsize=(10,3))
+fig, (ax0, ax1) = plt.subplots(1,2, figsize=(10,4))
 ax0.plot(amp_ratio1, peakf1, 'r', lw=3, label='1st')
 ax0.plot(amp_ratio2, peakf2, 'b', lw=3, label='2nd')
 ax0.plot(amp_ratiobi, peakf_bi, 'g', lw=3, label='1st+2nd')
 ax0.legend(loc=2)
-ax0.set_xlabel(r'Amplitude ratio', color='k', fontsize='20',fontweight='bold')
-ax0.set_ylabel('Peak Force (nN)', color='k', fontsize='20',fontweight='bold')
+ax0.set_xlabel(r'Amplitude ratio', color='k', fontsize='15',fontweight='bold')
+ax0.set_ylabel('Peak Force (nN)', color='k', fontsize='15',fontweight='bold')
 
 
 ax1.plot(amp_ratio1, depth1,'r', lw=3)
 ax1.plot(amp_ratio2, depth2, 'b', lw=3)
 ax1.plot(amp_ratiobi, depth_bi, 'g', lw=3)
-ax1.set_xlabel(r'Amplitude ratio', color='k', fontsize='20',fontweight='bold')
-ax1.set_ylabel('Max Depth (nm)', color='k', fontsize='20',fontweight='bold')
+ax1.set_xlabel(r'Amplitude ratio', color='k', fontsize='15',fontweight='bold')
+ax1.set_ylabel('Max Depth (nm)', color='k', fontsize='15',fontweight='bold')
 
 figannotate(text='(a)', fs=20, pos=(0.05,1.1))
 os.chdir(path)
