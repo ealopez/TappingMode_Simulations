@@ -6,12 +6,46 @@ Created on Tue Jul 04 09:21:54 2017
 
 Description: this library contains the core algortihms for tapping mode AFM simulations.
 
-Updated November 2nd 2017
+Updated February 13th 2017
 """
 
 import numpy as np
 from numba import jit
 
+
+def verlet_noIdeal_EB(zb, Fo1, Fo2, Fo3, Q1, Q2, Q3, k_L1, k_L2, k_L3, time, z1, z2,z3, v1,v2,v3, z1_old, z2_old, z3_old, Fts, dt, fo1,fo2,fo3, f1,f2,f3):
+    """This function performs verlet algorithm for integration of differential equation of harmonic oscillator"""
+    """for the case of sinc excitation at the tip"""
+    """This function does not assume ideal Euler-Bernoulli scaling but instead the cantilever parameters are passed to the function"""    
+    
+    a1 = ( -z1 - v1/(Q1*(fo1*2*np.pi)) + ( Fo1*np.cos((f1*2*np.pi)*time) + Fo2*np.cos((f2*2*np.pi)*time) + Fo3*np.cos((f3*2*np.pi)*time)  + Fts)/k_L1  )* (fo1*2.0*np.pi)**2
+    a2 = ( -z2 - v2/(Q2*(fo2*2*np.pi)) + ( Fo1*np.cos((f1*2*np.pi)*time) + Fo2*np.cos((f2*2*np.pi)*time) + Fo3*np.cos((f3*2*np.pi)*time)  + Fts)/k_L2  )* (fo2*2.0*np.pi)**2
+    a3 = ( -z3 - v3/(Q3*(fo3*2*np.pi)) + ( Fo1*np.cos((f1*2*np.pi)*time) + Fo2*np.cos((f2*2*np.pi)*time) + Fo3*np.cos((f3*2*np.pi)*time)  + Fts)/k_L3  )* (fo3*2.0*np.pi)**2
+    
+    #Verlet algorithm (central difference) to calculate position of the tip
+    z1_new = 2*z1 - z1_old + a1*pow(dt, 2)
+    z2_new = 2*z2 - z2_old + a2*pow(dt, 2)
+    z3_new = 2*z3 - z3_old + a3*pow(dt, 2)
+
+    #central difference to calculate velocities
+    v1 = (z1_new - z1_old)/(2*dt)
+    v2 = (z2_new - z2_old)/(2*dt)
+    v3 = (z3_new - z3_old)/(2*dt)
+    
+    #Updating z1_old and z1 for the next run
+    z1_old = z1
+    z1 = z1_new
+    
+    z2_old = z2
+    z2 = z2_new
+    
+    z3_old = z3
+    z3 = z3_new
+    
+    tip = z1 + z2 + z3 + zb
+    #tip_v = v1 + v2 + v3
+    return tip, z1, z2, z3, v1, v2, v3, z1_old, z2_old, z3_old
+numba_noIdeal_EB = jit()(verlet_noIdeal_EB)
 
 
 def verlet(zb, Fo1, Fo2, Fo3, Q1, Q2, Q3, k_m1, k_m2, k_m3, mass, time, z1, z2,z3, v1,v2,v3, z1_old, z2_old, z3_old, Fts, dt, fo1,fo2,fo3,f1,f2,f3):
@@ -173,7 +207,8 @@ def MDR_GenMaxwell_tapping(G, tau, R, dt, simultime, zb, A1, k_m1, fo1, printste
 
 
 
-def GenMaxwell_parabolic_LR(G, tau, R, dt, startprint, simultime, fo1, k_m1, A1, A2, A3, zb, printstep = 1, Ge = 0.0, Q1=100, Q2=200, Q3=300, H=2.0e-19):
+def GenMaxwell_parabolic_LR_niEB(G, tau, R, dt, startprint, simultime, fo1, fo2, fo3, k_m1, k_m2, k_m3, A1, A2, A3, zb, printstep = 1, Ge = 0.0, Q1=100, Q2=200, Q3=300, H=2.0e-19):
+    """This function is for the non ideal Euler-Bernoulli case"""
     """This function is designed for tapping over a Generalized Maxwel surface"""
     """The contact mechanics are performed over the framework of Lee and Radok, thus strictly only applies for approach portion"""
     """Modified Nov 2nd 2017"""
@@ -187,11 +222,7 @@ def GenMaxwell_parabolic_LR(G, tau, R, dt, startprint, simultime, fo1, k_m1, A1,
     G = np.array(G_a)
     tau = np.array(tau_a)
         
-    fo2 = 6.27*fo1            # resonance frequency of the second eigenmode (value taken from Garcia, R., & Herruzo, E. T. (2012). The emergence of multifrequency force microscopy. Nature nanotechnology, 7(4), 217-226.)
-    fo3 = 17.6*fo1           # resonance frequency of the third eigenmode (value taken from Garcia, R., & Herruzo, E. T. (2012). The emergence of multifrequency force microscopy. Nature nanotechnology, 7(4), 217-226.)
-    k_m2 = k_m1*(fo2/fo1)**2
-    k_m3 = k_m1*(fo3/fo1)**2
-    mass = k_m1/(2.0*np.pi*fo1)**2   
+      
     f1 = fo1
     f2 = fo2
     f3 = fo3
@@ -227,7 +258,7 @@ def GenMaxwell_parabolic_LR(G, tau, R, dt, startprint, simultime, fo1, k_m1, A1,
         
     while t < simultime:
         t = t + dt
-        tip, z1, z2, z3, v1, v2, v3, z1_old, z2_old, z3_old = numba_verlet(zb, Fo1, Fo2, Fo3, Q1, Q2, Q3, k_m1, k_m2, k_m3, mass, t, z1, z2,z3, v1,v2,v3, z1_old, z2_old, z3_old, Fts, dt, fo1,fo2,fo3,f1,f2,f3)
+        tip, z1, z2, z3, v1, v2, v3, z1_old, z2_old, z3_old = numba_noIdeal_EB(zb, Fo1, Fo2, Fo3, Q1, Q2, Q3, k_m1, k_m2, k_m3, t, z1, z2,z3, v1,v2,v3, z1_old, z2_old, z3_old, Fts, dt, fo1,fo2,fo3, f1,f2,f3)
         
         if t > ( startprint + printstep*printcounter):
             t_a.append(t)
