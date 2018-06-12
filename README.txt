@@ -9,6 +9,7 @@ The contact mechanics are performed following two main frameworks:
 "The contact stresses between a rigid indenter and a viscoelastic half-space." ASME, 1966.)
 
 
+
 Repository structure:
 The repository contains three main folders: Epoxy, PC, PIB containing simulations for the case of Epoxy, polycarbonate, and polyisobutylene, respectively.
 Each folder has the same internal structure:
@@ -19,3 +20,14 @@ Each folder has the same internal structure:
 - Simulation_SoftMatter_2ndMode.ipynb --> This jupyter notebook performs the simulations for single tapping mode with the 2nd mode excited
 - Simulation_SoftMatter_Bimodal.ipynb --> This jupyter notebook performs the simulations for bimodal tapping mode with the 1st and 2nd modes excited
 - PIB.txt (or Epoxy.txt, PC.txt) -- > contains the values of the Generalized Maxwell parameters (left column relaxation times, right column moduli of each arm)
+
+
+The simulations inside the PIB folder correspond to the results published in:
+Nikfarjam, M., López-Guerra, E. A., Solares, S. D., & Eslami, B. (2018). Imaging of viscoelastic soft 
+matter with small indentation using higher eigenmodes in single-eigenmode amplitude-modulation atomic force microscopy. 
+Beilstein journal of nanotechnology, 9, 1116.
+
+The code associated to this repository may be cited as:
+
+ealopez (2017) elopez/TappingMode_Simulations.
+https://zenodo.org/record/1087460.

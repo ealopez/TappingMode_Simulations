@@ -52,4 +52,4 @@ plt.subplots_adjust(left=None, bottom=None, right=None, top=None,  wspace=0.3, h
 
 figannotate(text='(a)', fs=20, pos=(0.05,1.2))
 os.chdir(path)
-plt.savefig('Fig2_simuls.png', bbox_inches='tight', dpi=900)
+#plt.savefig('Fig2_simuls.png', bbox_inches='tight', dpi=900)
